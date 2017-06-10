@@ -11,18 +11,39 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <locale>         // std::locale, std::toupper
+#include <iterator>
+#include <algorithm>
+#include <array>
+#include <vector>
+
 
 #define NUM_TYPES   5
 enum {INT8, INT16, INT32, FP16, FP32};
 extern "C" const char *precisionName[NUM_TYPES] = {"INT8", "INT16", "INT32", "FP16", "FP32"};
+typedef std::vector<std::string> precTbl;
 
 extern "C" int mainLoop(int unitPrecision,
              int targetNumClocks);
 
+struct flexParam {
+    int unitPrecision;
+    int targetNumClocks;
+    std::string model_file;
+    
+    flexParam()
+    {
+        unitPrecision = FP32;
+        targetNumClocks = 1000;
+        model_file = "flexnn.ad";
+    }
+};
+
+
 static
 void showhelpinfo(char *s);
 using namespace std;
-int myParser (int argc, char *argv[])
+int myParser (int argc, char *argv[], flexParam & param, precTbl & prec_table)
 {
     char tmp;
     /*if the program is ran witout options ,it will show the usgage and exit*/
@@ -45,10 +66,24 @@ int myParser (int argc, char *argv[])
                 /*option c */
             case 'c':
                 cout<<"Target clock is "<<optarg<<endl;
+                param.targetNumClocks = std::stoi(optarg);
                 break;
                 /*option p */
             case 'p':
-                cout<<"Target precision is "<<optarg<<endl;
+            {
+                std::locale loc;
+                std::string data = std::string(optarg);
+                transform(data.begin(), data.end(), data.begin(),::toupper);
+                cout<<"Target precision is "<< data <<endl;
+                
+                precTbl::iterator it;
+                it = std::find(prec_table.begin(), prec_table.end(), data);
+
+                if (it != prec_table.end()) {
+                    //cerr << "Found at position " << std::distance(prec_table.begin(), it) << endl;
+                    param.unitPrecision = (int)std::distance(prec_table.begin(), it);
+                }
+            }
                 break;
                 /*option m */
             case 'm':
@@ -75,7 +110,7 @@ void showhelpinfo(char *s)
     cout<<"option:  "<<"-h  show help information"<<endl;
     cout<<"         "<<"-p  presision:  int8, int16, int32, fp16, fp32; default: fp32"<<endl;
     cout<<"         "<<"-c  targret clock; default: 1000"<<endl;
-    cout<<"         "<<"-m  model definision file; default: flexnn.ad"<<endl;
+    cout<<"         "<<"-m  model definition file; default: flexnn.ad"<<endl;
     cout<<"         "<<"-v  show version infomation"<<endl;
     cout<<"example: "<<s<<" -pfp16 -c10000 -mmymodel.ad"<<endl;
 }
@@ -83,12 +118,14 @@ void showhelpinfo(char *s)
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    std::cout << "Hello, World!\n";
+// initialization
+    flexParam flex_param;
+    precTbl precNames(precisionName, precisionName + NUM_TYPES);
     
-    int unitPrecision = FP32;
-    int targetNumClocks = 1000;
-    myParser (argc,(char**)argv);
-    mainLoop(unitPrecision,targetNumClocks);
+    myParser (argc,(char**)argv, flex_param, precNames);
+    
+    
+    mainLoop(flex_param.unitPrecision,flex_param.targetNumClocks);
     
     return 0;
 }
