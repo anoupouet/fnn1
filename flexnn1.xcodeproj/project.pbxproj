@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4A809E801EEBA96900F87571 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4A809E7F1EEBA96900F87571 /* main.cpp */; };
+		4A809E871EEBAA2500F87571 /* dc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4A809E861EEBAA2500F87571 /* dc.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,7 @@
 /* Begin PBXFileReference section */
 		4A809E7C1EEBA96900F87571 /* flexnn1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = flexnn1; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A809E7F1EEBA96900F87571 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		4A809E861EEBAA2500F87571 /* dc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dc.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +59,7 @@
 		4A809E7E1EEBA96900F87571 /* flexnn1 */ = {
 			isa = PBXGroup;
 			children = (
+				4A809E861EEBAA2500F87571 /* dc.cpp */,
 				4A809E7F1EEBA96900F87571 /* main.cpp */,
 			);
 			path = flexnn1;
@@ -119,6 +122,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A809E871EEBAA2500F87571 /* dc.cpp in Sources */,
 				4A809E801EEBA96900F87571 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -248,6 +252,7 @@
 				4A809E851EEBA96900F87571 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
