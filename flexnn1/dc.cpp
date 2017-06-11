@@ -87,7 +87,7 @@ int flexModelSpace :: InitPowerArrea()
 
 
 
-int flexParam::ParseNetModelFile(void)
+int flexParam::parseNetModelFile(void)
 {
     int ret = 0;
     net_model.net.resize(NUM_LAYERS);
@@ -101,20 +101,22 @@ int flexParam::ParseNetModelFile(void)
         net[i].op = OP_CONV;
         net[i].convSize = 3 + 2*(i & 1);
         net[i].precision = unitPrecision;
+        
+        net[i].numMuls = net[i].width * net[i].height * net[i].convSize * net[i].convSize;
+        net[i].numAdds = net[i].width * net[i].height * (net[i].convSize * net[i].convSize - 1);
+        
     }
     
    
     return(ret);
 }
 
-int flexParam::  CalcMaxNumOpPerLayer(void)
+int flexModel::  calcMaxNumOpPerLayer(const flexParam & flex_params)
 {
     int ret = 0;
-    layer_array net = net_model.net;
+    layer_array net = flex_params.net_model.net;
     for (int i = 0; i < NUM_LAYERS; i++)
     {
-        net[i].numMuls = net[i].width * net[i].height * net[i].convSize * net[i].convSize;
-        net[i].numAdds = net[i].width * net[i].height * (net[i].convSize * net[i].convSize - 1);
         if ( net[i].numMuls > maxLayerOps)
         {
             maxLayerOps = net[i].numMuls;
@@ -299,8 +301,10 @@ int flexNNAnaliticalModel(flexModelSpace model_space,
     int ret = 0;
     
     model_space.InitPowerArrea();
-    model_params.ParseNetModelFile();
-    model_params.CalcMaxNumOpPerLayer();
+    model_params.parseNetModelFile();
+    flexModel model;
+    
+    model.calcMaxNumOpPerLayer(model_params);
     
     mainLoop(model_params.unitPrecision, model_params.targetNumClocks);
     return (ret);

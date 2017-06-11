@@ -127,8 +127,6 @@ public:
     
     flexNet net_model;
     
-    size_t maxLayerOps;
-    int maxLayer;
     
 public:
     flexParam()
@@ -137,15 +135,45 @@ public:
         targetNumClocks = 1000;
         model_file = "flexnn.ad";
         
+    }
+    
+    int parseNetModelFile(void);
+};
+
+class flexModel{
+    
+    
+public:
+
+    int numExecUnits;
+    size_t totalClks;
+    float power;
+    size_t area;
+    
+public:
+    flexModel()
+    {
+        numExecUnits = 0;
+        totalClks = 0;
+        power = 0;
+        area = 0;
+  
         maxLayerOps = 0;
         maxLayer = -1;
         
     }
+public:
+    int calcMaxNumOpPerLayer(const flexParam & flex_params);
+    int calcPower(void);
     
-    int ParseNetModelFile(void);
-    int CalcMaxNumOpPerLayer(void);
-};
+    int calcArea(void);
+protected:
+    size_t maxLayerOps;
+    int maxLayer;
+    
+    
 
+};
 
 int flexNNAnaliticalModel(flexModelSpace model_space,
                           flexParam mode_params);
