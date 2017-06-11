@@ -9,12 +9,12 @@
 /*In the C++ header file "unistd.h", function getopt can get the arguments with different options.*/
 #include "flexnn_internal.h"
 
-extern "C" const char *precisionName[NUM_TYPES] = {"INT8", "INT16", "INT32", "FP16", "FP32"};
+//extern "C" const char *precisionName[NUM_TYPES] = {"INT8", "INT16", "INT32", "FP16", "FP32"};
 
 static
 void showhelpinfo(char *s);
 
-int myParser (int argc, char *argv[], flexParam & param, precTbl & prec_table)
+int myParser (int argc, char *argv[], flexParam & param, flexModelSpace & prec_table)
 {
     char tmp;
     /*if the program is ran witout options ,it will show the usgage and exit*/
@@ -46,12 +46,12 @@ int myParser (int argc, char *argv[], flexParam & param, precTbl & prec_table)
                 transform(data.begin(), data.end(), data.begin(),::toupper);
                 cout<<"Target precision is "<< data <<endl;
                 
-                precTbl::iterator it;
-                it = std::find(prec_table.begin(), prec_table.end(), data);
+                string_array::iterator it;
+                it = std::find(prec_table.precisions.begin(), prec_table.precisions.end(), data);
 
-                if (it != prec_table.end()) {
+                if (it != prec_table.precisions.end()) {
                     //cerr << "Found at position " << std::distance(prec_table.begin(), it) << endl;
-                    param.unitPrecision = (int)std::distance(prec_table.begin(), it);
+                    param.unitPrecision = (int)std::distance(prec_table.precisions.begin(), it);
                 }
             }
                 break;
@@ -90,7 +90,7 @@ int main(int argc, const char * argv[]) {
     // insert code here...
 // initialization
     flexParam flex_param;
-    precTbl precNames(precisionName, precisionName + NUM_TYPES);
+    flexModelSpace precNames;
     
     myParser (argc,(char**)argv, flex_param, precNames);
     

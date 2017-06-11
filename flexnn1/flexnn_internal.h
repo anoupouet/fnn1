@@ -21,15 +21,33 @@
 using namespace std;
 
 
+
+
+
 #define NUM_TYPES   5
 enum {INT8, INT16, INT32, FP16, FP32};
+static
+const char *precisionName[NUM_TYPES] = {"INT8", "INT16", "INT32", "FP16", "FP32"};
 
-typedef std::vector<std::string> precTbl;
+
+typedef std::vector<std::string> string_array;
 
 extern "C" int mainLoop(int unitPrecision,
                         int targetNumClocks);
 
+
+struct flexModelSpace {
+    
+    string_array precisions;
+    
+    flexModelSpace()
+    {
+        precisions = string_array(precisionName, precisionName + NUM_TYPES);
+    }
+};
+
 struct flexParam {
+    
     int unitPrecision;
     int targetNumClocks;
     std::string model_file;

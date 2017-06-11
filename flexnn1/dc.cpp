@@ -1,12 +1,7 @@
-#include <stdio.h>
-#include <string.h>
-
-#define NUM_TYPES   5
-enum {INT8, INT16, INT32, FP16, FP32};
-
-extern "C" const char *precisionName[NUM_TYPES];
+#include "flexnn_internal.h"
 
 
+//extern "C" const char *precisionName[NUM_TYPES];
 
 
 enum {OP_CONV, OP_MM, OP_PULL};
