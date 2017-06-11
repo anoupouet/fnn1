@@ -87,10 +87,12 @@ int flexModelSpace :: InitPowerArrea()
 
 
 
-int flexNet::ParseNetModelFile(const flexParam & model_params)
+int flexParam::ParseNetModelFile(void)
 {
     int ret = 0;
-    net.resize(NUM_LAYERS);
+    net_model.net.resize(NUM_LAYERS);
+    layer_array net = net_model.net;
+    
     for (int i = 0; i < NUM_LAYERS; i++)
     {
         net[i].id = i;
@@ -98,7 +100,7 @@ int flexNet::ParseNetModelFile(const flexParam & model_params)
         net[i].height = 64;
         net[i].op = OP_CONV;
         net[i].convSize = 3 + 2*(i & 1);
-        net[i].precision = model_params.unitPrecision;
+        net[i].precision = unitPrecision;
     }
     
    
@@ -280,9 +282,7 @@ int flexNNAnaliticalModel(flexModelSpace model_space,
     int ret = 0;
     
     model_space.InitPowerArrea();
-    
-    flexNet net(model_params.model_file);
-    net.ParseNetModelFile(model_params);
+    model_params.ParseNetModelFile();
     
     mainLoop(model_params.unitPrecision, model_params.targetNumClocks);
     return (ret);

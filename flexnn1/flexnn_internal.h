@@ -92,7 +92,6 @@ class flexNet {
 public:
     
     layer_array net;
-    std::string model_file;
     
 public:
     flexNet()
@@ -100,19 +99,7 @@ public:
         
     }
     
-    flexNet(std::string model_file)
-    {
-        this->model_file = model_file;
-    }
-    
-    flexNet(const flexNet & copy)
-    {
-        model_file = copy.model_file;
-        net = copy.net;
-    }
-    
 public:
-    int ParseNetModelFile(const flexParam & model_params);
  
 };
 
@@ -146,6 +133,8 @@ public:
         targetNumClocks = 1000;
         model_file = "flexnn.ad";
     }
+    
+    int ParseNetModelFile(void);
 };
 
 
