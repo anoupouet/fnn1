@@ -21,7 +21,7 @@
 using namespace std;
 
 
-
+class flexParam;
 
 
 #define NUM_TYPES   5
@@ -85,11 +85,13 @@ public:
 
 typedef std::vector<flexLayer> layer_array;
 
+#define NUM_LAYERS  10
+
 class flexNet {
+ 
+public:
     
-    int ParseNetModelFile(void);
-    
-    layer_array layers;
+    layer_array net;
     std::string model_file;
     
 public:
@@ -106,15 +108,19 @@ public:
     flexNet(const flexNet & copy)
     {
         model_file = copy.model_file;
-        layers = copy.layers;
+        net = copy.net;
     }
+    
+public:
+    int ParseNetModelFile(const flexParam & model_params);
+ 
 };
 
 
 
 
-struct flexModelSpace {
-    
+class flexModelSpace {
+public:
     string_array precisions;
     power_area_array powerArea;
     
@@ -126,8 +132,8 @@ public:
     }
 };
 
-struct flexParam {
-    
+class flexParam {
+public:
     int unitPrecision;
     int targetNumClocks;
     std::string model_file;

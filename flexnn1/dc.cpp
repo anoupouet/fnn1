@@ -42,7 +42,7 @@ float powerWriteDRAM32;
 int areaSRAM;
 
 
-#define NUM_LAYERS  10
+
 
 Layer net[NUM_LAYERS];
 
@@ -85,6 +85,25 @@ int flexModelSpace :: InitPowerArrea()
     return(ret);
 }
 
+
+
+int flexNet::ParseNetModelFile(const flexParam & model_params)
+{
+    int ret = 0;
+    net.resize(NUM_LAYERS);
+    for (int i = 0; i < NUM_LAYERS; i++)
+    {
+        net[i].id = i;
+        net[i].width = 64;
+        net[i].height = 64;
+        net[i].op = OP_CONV;
+        net[i].convSize = 3 + 2*(i & 1);
+        net[i].precision = model_params.unitPrecision;
+    }
+    
+   
+    return(ret);
+}
 
 
 int findMaxNumOps()
@@ -261,6 +280,9 @@ int flexNNAnaliticalModel(flexModelSpace model_space,
     int ret = 0;
     
     model_space.InitPowerArrea();
+    
+    flexNet net(model_params.model_file);
+    net.ParseNetModelFile(model_params);
     
     mainLoop(model_params.unitPrecision, model_params.targetNumClocks);
     return (ret);
