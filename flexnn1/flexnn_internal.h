@@ -74,7 +74,6 @@ struct flexLayer{
     size_t numSRAMwrite;
     size_t numDRAMread;
     size_t numDRAMwrite;
-    size_t power;
 public:
     flexLayer()
     {
@@ -109,20 +108,35 @@ public:
 class flexModelSpace {
 public:
     string_array precisions;
-    power_area_array powerArea;
     
+public:
+    power_area_array powerArea;
+ 
+    double powerReadSRAM32;
+    double powerReadDRAM32;
+    
+    double powerWriteSRAM32;
+    double powerWriteDRAM32;
+
     int InitPowerArrea();
 public:
     flexModelSpace()
     {
         precisions = string_array(precisionName, precisionName + NUM_TYPES);
+ 
+        
+        powerReadSRAM32 = 5;
+        powerReadDRAM32 = 640;
+        
+        powerWriteSRAM32 = 0;
+        powerWriteDRAM32 = 0;
     }
 };
 
 class flexParam {
 public:
     int unitPrecision;
-    int targetNumClocks;
+    size_t targetNumClocks;
     std::string model_file;
     
     flexNet net_model;
@@ -147,7 +161,7 @@ public:
 
     int numExecUnits;
     size_t totalClks;
-    float power;
+    double power;
     size_t area;
     
 public:
@@ -163,10 +177,17 @@ public:
         
     }
 public:
+    
+    int searchHWConfig(const flexModelSpace & flex_space, const flexParam & flex_params);
+    int computePower(const flexModelSpace & flex_space, const flexParam & flex_params);
+    int computeArea(const flexModelSpace & flex_space, const flexParam & flex_params);
+    
     int calcMaxNumOpPerLayer(const flexParam & flex_params);
     int calcPower(void);
     
     int calcArea(void);
+    
+    
 protected:
     size_t maxLayerOps;
     int maxLayer;

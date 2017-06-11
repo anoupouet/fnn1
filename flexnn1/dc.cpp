@@ -91,9 +91,9 @@ int flexParam::parseNetModelFile(void)
 {
     int ret = 0;
     net_model.net.resize(NUM_LAYERS);
-    layer_array net = net_model.net;
+    layer_array & net = net_model.net;
     
-    for (int i = 0; i < NUM_LAYERS; i++)
+    for (int i = 0; i < net.size(); i++)
     {
         net[i].id = i;
         net[i].width = 64;
@@ -114,7 +114,7 @@ int flexParam::parseNetModelFile(void)
 int flexModel::  calcMaxNumOpPerLayer(const flexParam & flex_params)
 {
     int ret = 0;
-    layer_array net = flex_params.net_model.net;
+    const layer_array & net = flex_params.net_model.net;
     for (int i = 0; i < net.size(); i++)
     {
         if ( net[i].numMuls > maxLayerOps)
@@ -127,7 +127,7 @@ int flexModel::  calcMaxNumOpPerLayer(const flexParam & flex_params)
     return(ret);
 }
 
-size_t flexModel::  clocksPerLayer(size_t numOps, int numExecUnits)
+size_t flexModel ::  clocksPerLayer(size_t numOps, int numExecUnits)
 {
     
     size_t clks = (size_t)((double) numOps / (double) numExecUnits + 0.5);
@@ -139,7 +139,7 @@ size_t flexModel::  clocksPerLayer(size_t numOps, int numExecUnits)
 size_t flexModel::  clocksPerNetwork(const flexParam & flex_params, int numExecUnits)
 {
     size_t clks = 0;
-    layer_array net = flex_params.net_model.net;
+    const layer_array & net = flex_params.net_model.net;
     
     for (int i = 0; i < net.size(); i++)
     {
@@ -153,7 +153,7 @@ int flexModel::  selectNumExecUnits(const flexParam & flex_params, int oldNumUni
     
 
     int newNumUnits = oldNumUnits / 2;
-    layer_array net = flex_params.net_model.net;
+    const layer_array & net = flex_params.net_model.net;
 
     for (int i = 0; i < net.size(); i++) {
         
@@ -167,6 +167,75 @@ int flexModel::  selectNumExecUnits(const flexParam & flex_params, int oldNumUni
     return newNumUnits;
     
 }
+
+int flexModel ::  searchHWConfig(const flexModelSpace & flex_space, const flexParam & flex_params)
+{
+    int ret = 0;
+    const layer_array & net = flex_params.net_model.net;
+    
+    int numExecUnits_t = (int)maxLayerOps;
+    size_t totalClks_t = net.size();
+    int numExecUnitsPrev = numExecUnits_t;
+    size_t totalClksPrev = totalClks_t;
+
+    while (totalClks_t < flex_params.targetNumClocks) {
+    
+        numExecUnitsPrev = numExecUnits_t;
+        totalClksPrev = totalClks_t;
+    
+        numExecUnits_t = selectNumExecUnits(flex_params, numExecUnits_t );
+    
+        totalClks_t = clocksPerNetwork(flex_params, numExecUnits_t);
+    
+    //        printf("maxOps %i num units: %i num clocks %d\n", maxLayerOps, numExecUnits, totalClks);
+    }
+ 
+    if (totalClks_t > flex_params.targetNumClocks){
+        numExecUnits = numExecUnitsPrev;
+        totalClks = totalClksPrev;
+    }
+    else
+    {
+        numExecUnits = numExecUnits_t;
+        totalClks = totalClks_t;
+        
+    }
+    
+    return (ret);
+}
+
+
+int flexModel ::  computePower(const flexModelSpace & flex_space, const flexParam & flex_params)
+{
+    int ret = 0;
+    
+    const layer_array & net = flex_params.net_model.net;
+    const power_area_array & powerArea = flex_space.powerArea;
+    
+    for (int i = 0; i < net.size(); i++){
+        
+        int numElements = net[i].width * net[i].height;
+        int numMulAddPerElement = net[i].convSize * net[i].convSize;
+        power += numElements * numMulAddPerElement * powerArea[net[i].precision].powerMul;
+        power += numElements * numMulAddPerElement * powerArea[net[i].precision].powerAdd;
+        power += (numElements / powerArea[net[i].precision].numElementsPerWord32) * flex_space.powerReadSRAM32;
+    }
+    
+    return ret;
+}
+
+
+int flexModel ::  computeArea(const flexModelSpace & flex_space, const flexParam & flex_params)
+{
+    int ret = 0;
+    area = numExecUnits * powerArea[flex_params.unitPrecision].areaMul;
+    area += numExecUnits * powerArea[flex_params.unitPrecision].areaAdd;
+    
+    // XXX SRAM area
+    
+    return ret;
+}
+
 
 
 int findMaxNumOps()
@@ -347,7 +416,10 @@ int flexNNAnaliticalModel(flexModelSpace model_space,
     flexModel model;
     
     model.calcMaxNumOpPerLayer(model_params);
+    model.searchHWConfig(model_space, model_params);
+    model.computePower(model_space, model_params);
+    model.computeArea(model_space, model_params);
     
-    mainLoop(model_params.unitPrecision, model_params.targetNumClocks);
+    mainLoop(model_params.unitPrecision, (int)model_params.targetNumClocks);
     return (ret);
 }
