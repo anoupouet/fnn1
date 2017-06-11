@@ -126,15 +126,24 @@ public:
     std::string model_file;
     
     flexNet net_model;
+    
+    size_t maxLayerOps;
+    int maxLayer;
+    
 public:
     flexParam()
     {
         unitPrecision = FP32;
         targetNumClocks = 1000;
         model_file = "flexnn.ad";
+        
+        maxLayerOps = 0;
+        maxLayer = -1;
+        
     }
     
     int ParseNetModelFile(void);
+    int CalcMaxNumOpPerLayer(void);
 };
 
 

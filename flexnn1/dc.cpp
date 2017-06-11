@@ -107,6 +107,23 @@ int flexParam::ParseNetModelFile(void)
     return(ret);
 }
 
+int flexParam::  CalcMaxNumOpPerLayer(void)
+{
+    int ret = 0;
+    layer_array net = net_model.net;
+    for (int i = 0; i < NUM_LAYERS; i++)
+    {
+        net[i].numMuls = net[i].width * net[i].height * net[i].convSize * net[i].convSize;
+        net[i].numAdds = net[i].width * net[i].height * (net[i].convSize * net[i].convSize - 1);
+        if ( net[i].numMuls > maxLayerOps)
+        {
+            maxLayerOps = net[i].numMuls;
+            maxLayer = i;
+        }
+    }
+    
+    return(ret);
+}
 
 int findMaxNumOps()
 {
@@ -283,6 +300,7 @@ int flexNNAnaliticalModel(flexModelSpace model_space,
     
     model_space.InitPowerArrea();
     model_params.ParseNetModelFile();
+    model_params.CalcMaxNumOpPerLayer();
     
     mainLoop(model_params.unitPrecision, model_params.targetNumClocks);
     return (ret);
