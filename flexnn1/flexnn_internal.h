@@ -10,6 +10,7 @@
 #define flexnn_internal_h
 
 #include <iostream>
+#include <fstream>
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>

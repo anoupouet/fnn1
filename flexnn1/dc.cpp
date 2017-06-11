@@ -152,6 +152,22 @@ int flexParam::parseNetModelFile(void)
         net[i].numAdds = net[i].width * net[i].height * (net[i].convSize * net[i].convSize - 1);
         
     }
+    string line;
+    ifstream m_file (model_file);
+    if (m_file.is_open())
+    {
+        while ( getline (m_file,line) )
+        {
+            cout << line << '\n';
+        }
+        m_file.close();
+    }
+    
+    else
+    {
+        cout << "Unable to open model definition file : " << model_file << endl;
+        ret = 1;
+    }
     
    
     return(ret);
@@ -327,6 +343,6 @@ int flexNNAnaliticalModel(int argc, const char * argv[])
         printf("target clks %i precision %s\n", (int)model_params.targetNumClocks, model_space.precisions[model_params.unitPrecision].c_str());
         printf("real clks %i num units %i area %i power %f\n", (int)model.totalClks, model.numExecUnits, (int)model.area, model.power);
     }
-   // mainLoop(model_params.unitPrecision, (int)model_params.targetNumClocks);
+ 
     return (ret);
 }
