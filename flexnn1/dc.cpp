@@ -419,7 +419,10 @@ int flexNNAnaliticalModel(flexModelSpace model_space,
     model.searchHWConfig(model_space, model_params);
     model.computePower(model_space, model_params);
     model.computeArea(model_space, model_params);
+ 
+    printf("target clks %i precision %s\n", (int)model_params.targetNumClocks, model_space.precisions[model_params.unitPrecision].c_str());
+    printf("real clks %i num units %i area %i power %f\n", (int)model.totalClks, model.numExecUnits, (int)model.area, model.power);
     
-    mainLoop(model_params.unitPrecision, (int)model_params.targetNumClocks);
+   // mainLoop(model_params.unitPrecision, (int)model_params.targetNumClocks);
     return (ret);
 }
