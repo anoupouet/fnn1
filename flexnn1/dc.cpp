@@ -159,7 +159,7 @@ int computeArea(int numExecUnits, int unitPrecision)
 }
 
 
-extern "C"
+static
 int mainLoop(int unitPrecision,
              int targetNumClocks)
 {
@@ -220,4 +220,12 @@ int mainLoop(int unitPrecision,
     printf("real clks %i num units %i area %i power %f\n", totalClks, numExecUnits, area, power);
     
     return 0;
+}
+
+int flexNNAnaliticalModel(flexModelSpace model_space,
+                          flexParam model_params)
+{
+    int ret = 0;
+    mainLoop(model_params.unitPrecision, model_params.targetNumClocks);
+    return (ret);
 }

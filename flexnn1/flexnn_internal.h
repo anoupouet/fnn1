@@ -32,8 +32,6 @@ const char *precisionName[NUM_TYPES] = {"INT8", "INT16", "INT32", "FP16", "FP32"
 
 typedef std::vector<std::string> string_array;
 
-extern "C" int mainLoop(int unitPrecision,
-                        int targetNumClocks);
 
 
 struct flexModelSpace {
@@ -59,6 +57,10 @@ struct flexParam {
         model_file = "flexnn.ad";
     }
 };
+
+
+int flexNNAnaliticalModel(flexModelSpace model_space,
+                          flexParam mode_params);
 
 
 #endif /* flexnn_internal_h */

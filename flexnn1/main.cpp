@@ -13,8 +13,8 @@
 
 static
 void showhelpinfo(char *s);
-
-int myParser (int argc, char *argv[], flexParam & param, flexModelSpace & prec_table)
+static
+int argParser (int argc, char *argv[], flexParam & param, flexModelSpace & prec_table)
 {
     char tmp;
     /*if the program is ran witout options ,it will show the usgage and exit*/
@@ -89,13 +89,13 @@ void showhelpinfo(char *s)
 int main(int argc, const char * argv[]) {
     // insert code here...
 // initialization
-    flexParam flex_param;
-    flexModelSpace precNames;
+    flexParam flex_params;
+    flexModelSpace flex_model_space;
     
-    myParser (argc,(char**)argv, flex_param, precNames);
+    argParser (argc,(char**)argv, flex_params, flex_model_space);
     
-    
-    mainLoop(flex_param.unitPrecision,flex_param.targetNumClocks);
+    flexNNAnaliticalModel(flex_model_space,
+                          flex_params);
     
     return 0;
 }
