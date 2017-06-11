@@ -27,6 +27,7 @@
 		4A809E7C1EEBA96900F87571 /* flexnn1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = flexnn1; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A809E7F1EEBA96900F87571 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4A809E861EEBAA2500F87571 /* dc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dc.cpp; sourceTree = "<group>"; };
+		4A809E881EED96E400F87571 /* flexnn_internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = flexnn_internal.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +62,7 @@
 			children = (
 				4A809E861EEBAA2500F87571 /* dc.cpp */,
 				4A809E7F1EEBA96900F87571 /* main.cpp */,
+				4A809E881EED96E400F87571 /* flexnn_internal.h */,
 			);
 			path = flexnn1;
 			sourceTree = "<group>";

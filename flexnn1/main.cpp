@@ -7,42 +7,13 @@
 //
 
 /*In the C++ header file "unistd.h", function getopt can get the arguments with different options.*/
-#include <iostream>
-#include <unistd.h>
-#include <string.h>
-#include <stdlib.h>
-#include <locale>         // std::locale, std::toupper
-#include <iterator>
-#include <algorithm>
-#include <array>
-#include <vector>
+#include "flexnn_internal.h"
 
-
-#define NUM_TYPES   5
-enum {INT8, INT16, INT32, FP16, FP32};
 extern "C" const char *precisionName[NUM_TYPES] = {"INT8", "INT16", "INT32", "FP16", "FP32"};
-typedef std::vector<std::string> precTbl;
-
-extern "C" int mainLoop(int unitPrecision,
-             int targetNumClocks);
-
-struct flexParam {
-    int unitPrecision;
-    int targetNumClocks;
-    std::string model_file;
-    
-    flexParam()
-    {
-        unitPrecision = FP32;
-        targetNumClocks = 1000;
-        model_file = "flexnn.ad";
-    }
-};
-
 
 static
 void showhelpinfo(char *s);
-using namespace std;
+
 int myParser (int argc, char *argv[], flexParam & param, precTbl & prec_table)
 {
     char tmp;
@@ -71,7 +42,6 @@ int myParser (int argc, char *argv[], flexParam & param, precTbl & prec_table)
                 /*option p */
             case 'p':
             {
-                std::locale loc;
                 std::string data = std::string(optarg);
                 transform(data.begin(), data.end(), data.begin(),::toupper);
                 cout<<"Target precision is "<< data <<endl;
