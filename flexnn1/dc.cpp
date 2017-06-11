@@ -115,7 +115,7 @@ int flexModel::  calcMaxNumOpPerLayer(const flexParam & flex_params)
 {
     int ret = 0;
     layer_array net = flex_params.net_model.net;
-    for (int i = 0; i < NUM_LAYERS; i++)
+    for (int i = 0; i < net.size(); i++)
     {
         if ( net[i].numMuls > maxLayerOps)
         {
@@ -126,6 +126,48 @@ int flexModel::  calcMaxNumOpPerLayer(const flexParam & flex_params)
     
     return(ret);
 }
+
+size_t flexModel::  clocksPerLayer(size_t numOps, int numExecUnits)
+{
+    
+    size_t clks = (size_t)((double) numOps / (double) numExecUnits + 0.5);
+    // printf("numOps %i numExecUnits %i clks %i\n", numOps, numExecUnits, clks);
+    return clks;
+    
+}
+
+size_t flexModel::  clocksPerNetwork(const flexParam & flex_params, int numExecUnits)
+{
+    size_t clks = 0;
+    layer_array net = flex_params.net_model.net;
+    
+    for (int i = 0; i < net.size(); i++)
+    {
+        clks += clocksPerLayer(net[i].numMuls, numExecUnits);
+    }
+    return(clks);
+}
+
+int flexModel::  selectNumExecUnits(const flexParam & flex_params, int oldNumUnits )
+{
+    
+
+    int newNumUnits = oldNumUnits / 2;
+    layer_array net = flex_params.net_model.net;
+
+    for (int i = 0; i < net.size(); i++) {
+        
+        if ((net[i].numMuls > newNumUnits) && (net[i].numMuls < oldNumUnits)){
+            
+            newNumUnits = (int)net[i].numMuls;
+            
+        }
+    }
+    
+    return newNumUnits;
+    
+}
+
 
 int findMaxNumOps()
 {

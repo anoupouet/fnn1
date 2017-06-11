@@ -68,13 +68,13 @@ struct flexLayer{
     int precision;
     
     int convMethod;
-    int numMuls;
-    int numAdds;
-    int numSRAMread;
-    int numSRAMwrite;
-    int numDRAMread;
-    int numDRAMwrite;
-    int power;
+    size_t numMuls;
+    size_t numAdds;
+    size_t numSRAMread;
+    size_t numSRAMwrite;
+    size_t numDRAMread;
+    size_t numDRAMwrite;
+    size_t power;
 public:
     flexLayer()
     {
@@ -171,7 +171,9 @@ protected:
     size_t maxLayerOps;
     int maxLayer;
     
-    
+    size_t clocksPerLayer(size_t numOps, int numExecUnits);
+    size_t clocksPerNetwork(const flexParam & flex_params, int numExecUnits);
+    int selectNumExecUnits(const flexParam & flex_params, int oldNumUnits );
 
 };
 
