@@ -56,8 +56,9 @@ void showhelpinfo(char *s)
 
 
 
+
 static
-int argParser (int argc, char *argv[], flexParam & param, const flexModelSpace & prec_table)
+int argParser (int argc, char *argv[], flexParam & param, flexModelSpace & prec_table)
 {
     char tmp;
     /*if the program is ran witout options ,it will show the usgage and exit*/
@@ -117,6 +118,19 @@ int argParser (int argc, char *argv[], flexParam & param, const flexModelSpace &
     return (0);
 }
 
+int flexModelSpace::Init(int argc, const char * argv[], flexParam & params)
+{
+    int ret = 0;
+    ret = argParser (argc,(char**)argv, params, *this);
+    if (!ret)
+    {
+        ret = InitPowerArrea();
+    }
+    return(ret);
+    
+}
+
+
 
 
 int flexParam::parseNetModelFile(void)
@@ -143,19 +157,24 @@ int flexParam::parseNetModelFile(void)
     return(ret);
 }
 
-int flexParam::Init(int argc, const char * argv[], const flexModelSpace & model_space )
+int flexParam::Init(const flexModelSpace & model_space )
 {
     int ret = 0;
-    ret = argParser (argc,(char**)argv, *this, model_space);
-    if (!ret)
-    {
-        ret = parseNetModelFile();
-    }
+    ret = parseNetModelFile();
     return(ret);
 
 }
 
-int flexModel::  calcMaxNumOpPerLayer(const flexParam & flex_params)
+
+
+
+int flexModel::Init(void)
+{
+    int ret = 0;
+    return(ret);
+}
+
+int flexModel::calcMaxNumOpPerLayer(const flexParam & flex_params)
 {
     int ret = 0;
     const layer_array & net = flex_params.net_model.net;
@@ -171,7 +190,7 @@ int flexModel::  calcMaxNumOpPerLayer(const flexParam & flex_params)
     return(ret);
 }
 
-size_t flexModel ::  clocksPerLayer(size_t numOps, int numExecUnits)
+size_t flexModel::clocksPerLayer(size_t numOps, int numExecUnits)
 {
     
     size_t clks = (size_t)((double) numOps / (double) numExecUnits + 0.5);
@@ -215,8 +234,11 @@ int flexModel::  selectNumExecUnits(const flexParam & flex_params, int oldNumUni
 int flexModel ::  searchHWConfig(const flexModelSpace & flex_space, const flexParam & flex_params)
 {
     int ret = 0;
-    const layer_array & net = flex_params.net_model.net;
     
+    calcMaxNumOpPerLayer(flex_params);
+
+    
+    const layer_array & net = flex_params.net_model.net;
     int numExecUnits_t = (int)maxLayerOps;
     size_t totalClks_t = net.size();
     int numExecUnitsPrev = numExecUnits_t;
@@ -291,12 +313,13 @@ int flexNNAnaliticalModel(int argc, const char * argv[])
     flexModelSpace model_space;
     flexParam model_params;
     
-    model_space.InitPowerArrea();
-    if (!(ret = model_params.Init(argc, argv ,model_space) ))
+    if (!(ret = model_space.Init(argc, argv, model_params) ))
     {
+        
+        model_params.Init(model_space);
+        
         flexModel model;
     
-        model.calcMaxNumOpPerLayer(model_params);
         model.searchHWConfig(model_space, model_params);
         model.computePower(model_space, model_params);
         model.computeArea(model_space, model_params);

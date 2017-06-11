@@ -119,7 +119,9 @@ public:
     double powerWriteDRAM32;
     
     size_t areaSRAM;
-
+    int Init(int argc, const char * argv[], flexParam & params);
+    
+protected:
     int InitPowerArrea();
 public:
     flexModelSpace()
@@ -146,7 +148,7 @@ public:
     flexNet net_model;
     
 public:
-    int Init(int argc, const char * argv[], const flexModelSpace & model_space);
+    int Init(const flexModelSpace & model_space);
 
 public:
     flexParam()
@@ -184,11 +186,11 @@ public:
     }
 public:
     
+    int Init(void);
     int searchHWConfig(const flexModelSpace & flex_space, const flexParam & flex_params);
     int computePower(const flexModelSpace & flex_space, const flexParam & flex_params);
     int computeArea(const flexModelSpace & flex_space, const flexParam & flex_params);
     
-    int calcMaxNumOpPerLayer(const flexParam & flex_params);
     int calcPower(void);
     
     int calcArea(void);
@@ -198,6 +200,7 @@ protected:
     size_t maxLayerOps;
     int maxLayer;
     
+    int calcMaxNumOpPerLayer(const flexParam & flex_params);
     size_t clocksPerLayer(size_t numOps, int numExecUnits);
     size_t clocksPerNetwork(const flexParam & flex_params, int numExecUnits);
     int selectNumExecUnits(const flexParam & flex_params, int oldNumUnits );
