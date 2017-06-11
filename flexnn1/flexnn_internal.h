@@ -145,7 +145,9 @@ public:
     
     flexNet net_model;
     
-    
+public:
+    int Init(int argc, const char * argv[], const flexModelSpace & model_space);
+
 public:
     flexParam()
     {
@@ -154,7 +156,7 @@ public:
         model_file = "flexnn.ad";
         
     }
-    
+protected:
     int parseNetModelFile(void);
 };
 
@@ -202,8 +204,7 @@ protected:
 
 };
 
-int flexNNAnaliticalModel(flexModelSpace model_space,
-                          flexParam mode_params);
+int flexNNAnaliticalModel(int argc, const char * argv[]);
 
 
 #endif /* flexnn_internal_h */

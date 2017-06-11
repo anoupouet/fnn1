@@ -41,6 +41,83 @@ int flexModelSpace :: InitPowerArrea()
 }
 
 
+/*funcion that show the help information*/
+static
+void showhelpinfo(char *s)
+{
+    cout<<"Usage:   "<<s<<" [-option] [argument]"<<endl;
+    cout<<"option:  "<<"-h  show help information"<<endl;
+    cout<<"         "<<"-p  presision:  int8, int16, int32, fp16, fp32; default: fp32"<<endl;
+    cout<<"         "<<"-c  targret clock; default: 1000"<<endl;
+    cout<<"         "<<"-m  model definition file; default: flexnn.ad"<<endl;
+    cout<<"         "<<"-v  show version infomation"<<endl;
+    cout<<"example: "<<s<<" -pfp16 -c10000 -mmymodel.ad"<<endl;
+}
+
+
+
+static
+int argParser (int argc, char *argv[], flexParam & param, const flexModelSpace & prec_table)
+{
+    char tmp;
+    /*if the program is ran witout options ,it will show the usgage and exit*/
+    if(argc == 1)
+    {
+        showhelpinfo(argv[0]);
+        exit(1);
+    }
+    /*use function getopt to get the arguments with option."hp:c:m:v" indicate
+     that option h,v are the options without arguments while u,p,s are the
+     options with arguments*/
+    while((tmp=getopt(argc,argv,"hp:c:m:v"))!=-1)
+    {
+        switch(tmp)
+        {
+                /*option h show the help infomation*/
+            case 'h':
+                showhelpinfo(argv[0]);
+                break;
+                /*option c */
+            case 'c':
+                cout<<"Target clock is "<<optarg<<endl;
+                param.targetNumClocks = std::stoi(optarg);
+                break;
+                /*option p */
+            case 'p':
+            {
+                std::string data = std::string(optarg);
+                transform(data.begin(), data.end(), data.begin(),::toupper);
+                cout<<"Target precision is "<< data <<endl;
+                
+                string_array::iterator it;
+                string_array str_arr = prec_table.precisions;
+                it = std::find(str_arr.begin(), str_arr.end(), data);
+                
+                if (it != prec_table.precisions.end()) {
+                    //cerr << "Found at position " << std::distance(prec_table.begin(), it) << endl;
+                    param.unitPrecision = (int)std::distance(str_arr.begin(), it);
+                }
+            }
+                break;
+                /*option m */
+            case 'm':
+                cout<<"Model file is "<<optarg<<endl;
+                break;
+                /*option v show the version infomation*/
+            case 'v':
+                cout<<"The current version is 0.1"<<endl;
+                break;
+                /*invail input will get the heil infomation*/
+            default:
+                showhelpinfo(argv[0]);
+                break;
+        }
+    }
+    
+    return (0);
+}
+
+
 
 int flexParam::parseNetModelFile(void)
 {
@@ -64,6 +141,18 @@ int flexParam::parseNetModelFile(void)
     
    
     return(ret);
+}
+
+int flexParam::Init(int argc, const char * argv[], const flexModelSpace & model_space )
+{
+    int ret = 0;
+    ret = argParser (argc,(char**)argv, *this, model_space);
+    if (!ret)
+    {
+        ret = parseNetModelFile();
+    }
+    return(ret);
+
 }
 
 int flexModel::  calcMaxNumOpPerLayer(const flexParam & flex_params)
@@ -196,23 +285,25 @@ int flexModel ::  computeArea(const flexModelSpace & flex_space, const flexParam
 
 
 
-int flexNNAnaliticalModel(flexModelSpace model_space,
-                          flexParam model_params)
+int flexNNAnaliticalModel(int argc, const char * argv[])
 {
     int ret = 0;
+    flexModelSpace model_space;
+    flexParam model_params;
     
     model_space.InitPowerArrea();
-    model_params.parseNetModelFile();
-    flexModel model;
+    if (!(ret = model_params.Init(argc, argv ,model_space) ))
+    {
+        flexModel model;
     
-    model.calcMaxNumOpPerLayer(model_params);
-    model.searchHWConfig(model_space, model_params);
-    model.computePower(model_space, model_params);
-    model.computeArea(model_space, model_params);
+        model.calcMaxNumOpPerLayer(model_params);
+        model.searchHWConfig(model_space, model_params);
+        model.computePower(model_space, model_params);
+        model.computeArea(model_space, model_params);
  
-    printf("target clks %i precision %s\n", (int)model_params.targetNumClocks, model_space.precisions[model_params.unitPrecision].c_str());
-    printf("real clks %i num units %i area %i power %f\n", (int)model.totalClks, model.numExecUnits, (int)model.area, model.power);
-    
+        printf("target clks %i precision %s\n", (int)model_params.targetNumClocks, model_space.precisions[model_params.unitPrecision].c_str());
+        printf("real clks %i num units %i area %i power %f\n", (int)model.totalClks, model.numExecUnits, (int)model.area, model.power);
+    }
    // mainLoop(model_params.unitPrecision, (int)model_params.targetNumClocks);
     return (ret);
 }
