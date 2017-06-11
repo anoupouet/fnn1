@@ -1,11 +1,6 @@
 #include "flexnn_internal.h"
 
 
-//extern "C" const char *precisionName[NUM_TYPES];
-
-
-enum {OP_CONV, OP_MM, OP_PULL};
-
 typedef struct{
 
     int id;
@@ -46,13 +41,51 @@ float powerWriteDRAM32;
 
 int areaSRAM;
 
-//int unitPrecision = FP32;
 
 #define NUM_LAYERS  10
 
 Layer net[NUM_LAYERS];
 
-//int targetNumClocks = 1000;
+
+int flexModelSpace :: InitPowerArrea()
+{
+    int ret = 0;
+    powerArea.resize(precisions.size());
+    
+    powerArea[INT8].powerAdd = 0.03f;
+    powerArea[INT8].powerMul = 0.2f;
+    powerArea[INT8].areaAdd = 36;
+    powerArea[INT8].areaMul = 282;
+    powerArea[INT8].numElementsPerWord32 = 4;
+    
+    powerArea[INT16].powerAdd = 0.05f;
+    powerArea[INT16].powerMul = 1.5f;   // XXX
+    powerArea[INT16].areaAdd = 67;
+    powerArea[INT16].areaMul = 1500;    // XXX
+    powerArea[INT16].numElementsPerWord32 = 2;
+    
+    powerArea[INT32].powerAdd = 0.1;
+    powerArea[INT32].powerMul = 3.1f;
+    powerArea[INT32].areaAdd = 137;
+    powerArea[INT32].areaMul = 3495;
+    powerArea[INT32].numElementsPerWord32 = 1;
+    
+    powerArea[FP16].powerAdd = 0.4;
+    powerArea[FP16].powerMul = 1.1f;
+    powerArea[FP16].areaAdd = 1360;
+    powerArea[FP16].areaMul = 1640;
+    powerArea[FP16].numElementsPerWord32 = 2;
+    
+    powerArea[FP32].powerAdd = 0.9;
+    powerArea[FP32].powerMul = 3.7f;
+    powerArea[FP32].areaAdd = 4184;
+    powerArea[FP32].areaMul = 7700;
+    powerArea[FP32].numElementsPerWord32 = 1;
+    
+    return(ret);
+}
+
+
 
 int findMaxNumOps()
 {
@@ -197,12 +230,12 @@ int mainLoop(int unitPrecision,
 
     while (totalClks < targetNumClocks) {
 
+        numExecUnitsPrev = numExecUnits;
+        totalClksPrev = totalClks;
+        
         numExecUnits = selectNumExecUnits( numExecUnits );
         
         totalClks = clocksPerNetwork(numExecUnits);
-        
-        numExecUnitsPrev = numExecUnits;
-        totalClksPrev = totalClks;
         
 //        printf("maxOps %i num units: %i num clocks %d\n", maxLayerOps, numExecUnits, totalClks);
     }
@@ -226,6 +259,9 @@ int flexNNAnaliticalModel(flexModelSpace model_space,
                           flexParam model_params)
 {
     int ret = 0;
+    
+    model_space.InitPowerArrea();
+    
     mainLoop(model_params.unitPrecision, model_params.targetNumClocks);
     return (ret);
 }
