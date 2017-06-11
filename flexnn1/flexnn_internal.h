@@ -117,6 +117,8 @@ public:
     
     double powerWriteSRAM32;
     double powerWriteDRAM32;
+    
+    size_t areaSRAM;
 
     int InitPowerArrea();
 public:
@@ -130,6 +132,8 @@ public:
         
         powerWriteSRAM32 = 0;
         powerWriteDRAM32 = 0;
+        
+        areaSRAM = 0;
     }
 };
 
