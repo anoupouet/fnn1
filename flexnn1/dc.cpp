@@ -103,6 +103,7 @@ int argParser (int argc, char *argv[], flexParam & param, flexModelSpace & prec_
                 /*option m */
             case 'm':
                 cout<<"Model file is "<<optarg<<endl;
+                param.model_file = optarg;
                 break;
                 /*option v show the version infomation*/
             case 'v':
