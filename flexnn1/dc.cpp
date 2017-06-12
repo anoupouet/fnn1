@@ -134,6 +134,7 @@ int flexModelSpace::Init(int argc, const char * argv[], flexParam & params)
 static
 void split(const string& str, const string& delim, vector<string>& parts) {
     size_t start, end = 0;
+    parts.clear();
     while (end < str.size()) {
         start = end;
         while (start < str.size() && (delim.find(str[start]) != string::npos)) {
@@ -261,7 +262,7 @@ int flexModel::calcMaxNumOpPerLayer(const flexParam & flex_params)
     return(ret);
 }
 
-size_t flexModel::clocksPerLayer(size_t numOps, int numExecUnits)
+size_t flexModel::clocksPerLayer(size_t numOps, size_t numExecUnits)
 {
     
     size_t clks = (size_t)((double) numOps / (double) numExecUnits + 0.5);
@@ -270,7 +271,7 @@ size_t flexModel::clocksPerLayer(size_t numOps, int numExecUnits)
     
 }
 
-size_t flexModel::  clocksPerNetwork(const flexParam & flex_params, int numExecUnits)
+size_t flexModel::  clocksPerNetwork(const flexParam & flex_params, size_t numExecUnits)
 {
     size_t clks = 0;
     const layer_array & net = flex_params.net_model.net;
@@ -282,11 +283,10 @@ size_t flexModel::  clocksPerNetwork(const flexParam & flex_params, int numExecU
     return(clks);
 }
 
-int flexModel::  selectNumExecUnits(const flexParam & flex_params, int oldNumUnits )
+size_t flexModel::  selectNumExecUnits(const flexParam & flex_params, size_t oldNumUnits )
 {
     
-
-    int newNumUnits = oldNumUnits / 2;
+    size_t newNumUnits = oldNumUnits / 2;
     const layer_array & net = flex_params.net_model.net;
 
     for (int i = 0; i < net.size(); i++) {
@@ -298,7 +298,7 @@ int flexModel::  selectNumExecUnits(const flexParam & flex_params, int oldNumUni
         }
     }
     
-    return newNumUnits;
+    return (newNumUnits);
     
 }
 
@@ -310,9 +310,9 @@ int flexModel ::  searchHWConfig(const flexModelSpace & flex_space, const flexPa
 
     
     const layer_array & net = flex_params.net_model.net;
-    int numExecUnits_t = (int)maxLayerOps;
+    size_t numExecUnits_t = maxLayerOps;
     size_t totalClks_t = net.size();
-    int numExecUnitsPrev = numExecUnits_t;
+    size_t numExecUnitsPrev = numExecUnits_t;
     size_t totalClksPrev = totalClks_t;
 
     while (totalClks_t < flex_params.targetNumClocks) {
@@ -394,8 +394,8 @@ int flexNNAnaliticalModel(int argc, const char * argv[])
         model.computePower(model_space, model_params);
         model.computeArea(model_space, model_params);
  
-        printf("target clks %i precision %s\n", (int)model_params.targetNumClocks, model_space.precisions[model_params.unitPrecision].c_str());
-        printf("real clks %i num units %i area %i power %f\n", (int)model.totalClks, model.numExecUnits, (int)model.area, model.power);
+        printf("target clks %ld precision %s\n", model_params.targetNumClocks, model_space.precisions[model_params.unitPrecision].c_str());
+        printf("real clks %ld num units %ld area %ld power %f\n", model.totalClks, model.numExecUnits, model.area, model.power);
     }
  
     return (ret);

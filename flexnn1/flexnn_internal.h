@@ -190,7 +190,7 @@ class flexModel{
     
 public:
 
-    int numExecUnits;
+    size_t numExecUnits;
     size_t totalClks;
     double power;
     size_t area;
@@ -224,9 +224,9 @@ protected:
     int maxLayer;
     
     int calcMaxNumOpPerLayer(const flexParam & flex_params);
-    size_t clocksPerLayer(size_t numOps, int numExecUnits);
-    size_t clocksPerNetwork(const flexParam & flex_params, int numExecUnits);
-    int selectNumExecUnits(const flexParam & flex_params, int oldNumUnits );
+    size_t clocksPerLayer(size_t numOps, size_t numExecUnits);
+    size_t clocksPerNetwork(const flexParam & flex_params, size_t numExecUnits);
+    size_t selectNumExecUnits(const flexParam & flex_params, size_t oldNumUnits );
 
 };
 
