@@ -156,24 +156,6 @@ int flexParam::parseNetModelFile(void)
     
     layer_array & net = net_model.net;
     
-#if 0
-    net_model.net.resize(NUM_LAYERS);
- 
-
-    for (int i = 0; i < net.size(); i++)
-    {
-        net[i].id = i;
-        net[i].width = 64;
-        net[i].height = 64;
-        net[i].op = OP_CONV;
-        net[i].convSize = 3 + 2*(i & 1);
-        net[i].precision = unitPrecision;
-        
-        net[i].numMuls = net[i].width * net[i].height * net[i].convSize * net[i].convSize;
-        net[i].numAdds = net[i].width * net[i].height * (net[i].convSize * net[i].convSize - 1);
-        
-    }
-#endif
     
     std::string line;
     std::ifstream m_file (model_file);

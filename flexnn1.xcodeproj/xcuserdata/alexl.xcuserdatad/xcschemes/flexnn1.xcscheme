@@ -63,7 +63,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-pfp32 -c10000 -mflex_net.ad"
+            argument = "-pfp32 -c1000000 -mflex_net.ad"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
