@@ -210,8 +210,9 @@ int flexParam::parseNetModelFile(void)
 
             lyr.precision = unitPrecision;
             
-            lyr.numMuls = lyr.batch * lyr.n_inputs * lyr.n_outputs * lyr.width * lyr.height * lyr.conv_height * lyr.conv_width;
-            lyr.numAdds = lyr.batch * lyr.n_inputs * lyr.n_outputs * lyr.width * lyr.height * (lyr.conv_height * lyr.conv_width - 1);
+            size_t n_convs = (size_t)lyr.batch * (size_t)lyr.n_inputs * (size_t)lyr.n_outputs * (size_t)lyr.width * (size_t)lyr.height;
+            lyr.numMuls = n_convs * (size_t)lyr.conv_height * (size_t)lyr.conv_width;
+            lyr.numAdds = n_convs * ((size_t)lyr.conv_height * (size_t)lyr.conv_width - 1);
             
             net.push_back(lyr);
             line_id++;
@@ -262,43 +263,43 @@ int flexModel::calcMaxNumOpPerLayer(const flexParam & flex_params)
     return(ret);
 }
 
-size_t flexModel::clocksPerLayer(size_t numOps, size_t numExecUnits)
+size_t flexModel::clocksPerLayer(size_t numOps, size_t numExecUnits_t)
 {
     
-    size_t clks = (size_t)((double) numOps / (double) numExecUnits + 0.5);
-    // printf("numOps %i numExecUnits %i clks %i\n", numOps, numExecUnits, clks);
-    return clks;
+    size_t clks_t = (size_t)((double) numOps / (double) numExecUnits_t + 0.5);
+//    printf("numOps %ld numExecUnits %ld clks %ld\n", numOps, numExecUnits_t, clks_t);
+    return clks_t;
     
 }
 
-size_t flexModel::  clocksPerNetwork(const flexParam & flex_params, size_t numExecUnits)
+size_t flexModel::  clocksPerNetwork(const flexParam & flex_params, size_t numExecUnits_t)
 {
-    size_t clks = 0;
+    size_t clks_t = 0;
     const layer_array & net = flex_params.net_model.net;
     
     for (int i = 0; i < net.size(); i++)
     {
-        clks += clocksPerLayer(net[i].numMuls, numExecUnits);
+        clks_t += clocksPerLayer(net[i].numMuls, numExecUnits_t);
     }
-    return(clks);
+    return(clks_t);
 }
 
 size_t flexModel::  selectNumExecUnits(const flexParam & flex_params, size_t oldNumUnits )
 {
     
-    size_t newNumUnits = oldNumUnits / 2;
+    size_t newNumUnits_t = oldNumUnits / 2;
     const layer_array & net = flex_params.net_model.net;
 
     for (int i = 0; i < net.size(); i++) {
         
-        if ((net[i].numMuls > newNumUnits) && (net[i].numMuls < oldNumUnits)){
+        if ((net[i].numMuls > newNumUnits_t) && (net[i].numMuls < oldNumUnits)){
             
-            newNumUnits = (int)net[i].numMuls;
+            newNumUnits_t = net[i].numMuls;
             
         }
     }
     
-    return (newNumUnits);
+    return (newNumUnits_t);
     
 }
 
@@ -324,7 +325,7 @@ int flexModel ::  searchHWConfig(const flexModelSpace & flex_space, const flexPa
     
         totalClks_t = clocksPerNetwork(flex_params, numExecUnits_t);
     
-    //        printf("maxOps %i num units: %i num clocks %d\n", maxLayerOps, numExecUnits, totalClks);
+ //       printf("maxOps %ld num units: %ld num clocks %ld\n", maxLayerOps, numExecUnits_t, totalClks);
     }
  
     if (totalClks_t > flex_params.targetNumClocks){
@@ -351,9 +352,11 @@ int flexModel ::  computePower(const flexModelSpace & flex_space, const flexPara
     
     for (int i = 0; i < net.size(); i++){
         
-        power += net[i].numMuls * powerArea[net[i].precision].powerMul;
-        power += net[i].numAdds * powerArea[net[i].precision].powerAdd;
-        size_t numElements = net[i].batch * net[i].n_inputs * net[i].n_outputs * net[i].width * net[i].height * net[i].conv_height * net[i].conv_width;
+        size_t numElements = net[i].batch * net[i].n_inputs * net[i].n_outputs * net[i].width * net[i].height;
+        size_t numMulAddPerElement = net[i].conv_height * net[i].conv_width;
+        
+        power += numElements * numMulAddPerElement * powerArea[net[i].precision].powerMul;
+        power += numElements * numMulAddPerElement * powerArea[net[i].precision].powerAdd;
         power += (numElements / powerArea[net[i].precision].numElementsPerWord32) * flex_space.powerReadSRAM32;
     }
     
