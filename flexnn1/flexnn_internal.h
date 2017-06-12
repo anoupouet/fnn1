@@ -63,9 +63,13 @@ struct flexLayer{
     
     int id;
     int op;
+    int batch;
+    int n_inputs;
+    int n_outputs;
     int width;
     int height;
-    int convSize;
+    int conv_height;
+    int conv_width;
     int precision;
     
     int convMethod;
@@ -79,6 +83,24 @@ public:
     flexLayer()
     {
         
+        id = 0;
+        op = 0;
+        batch = 0;
+        n_inputs = 0;
+        n_outputs = 0;
+        width = 0;
+        height = 0;
+        conv_height = 0;
+        conv_width = 0;
+        precision = 0;
+        
+        convMethod = 0;
+        numMuls = 0;
+        numAdds = 0;
+        numSRAMread = 0;
+        numSRAMwrite = 0;
+        numDRAMread = 0;
+        numDRAMwrite = 0;
     }
 
 } ;

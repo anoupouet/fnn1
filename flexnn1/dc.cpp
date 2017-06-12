@@ -131,15 +131,35 @@ int flexModelSpace::Init(int argc, const char * argv[], flexParam & params)
     
 }
 
-
+static
+void split(const string& str, const string& delim, vector<string>& parts) {
+    size_t start, end = 0;
+    while (end < str.size()) {
+        start = end;
+        while (start < str.size() && (delim.find(str[start]) != string::npos)) {
+            start++;  // skip initial whitespace
+        }
+        end = start;
+        while (end < str.size() && (delim.find(str[end]) == string::npos)) {
+            end++; // skip to end of word
+        }
+        if (end-start != 0) {  // just ignore zero-length strings.
+            parts.push_back(string(str, start, end-start));
+        }
+    }
+}
 
 
 int flexParam::parseNetModelFile(void)
 {
     int ret = 0;
-    net_model.net.resize(NUM_LAYERS);
+    
     layer_array & net = net_model.net;
     
+#if 0
+    net_model.net.resize(NUM_LAYERS);
+ 
+
     for (int i = 0; i < net.size(); i++)
     {
         net[i].id = i;
@@ -153,13 +173,65 @@ int flexParam::parseNetModelFile(void)
         net[i].numAdds = net[i].width * net[i].height * (net[i].convSize * net[i].convSize - 1);
         
     }
-    string line;
-    ifstream m_file (model_file);
+#endif
+    
+    std::string line;
+    std::ifstream m_file (model_file);
     if (m_file.is_open())
     {
+        int line_id = 0;
         while ( getline (m_file,line) )
         {
             cout << line << '\n';
+            std::vector<std::string> parts;
+            std::string delim = " ";
+            split(line, delim, parts);
+            if (line.c_str()[0] == '#')
+            {
+                continue;
+            }
+            int i = line_id;
+            std::string dlm = ":";
+            flexLayer lyr;
+            
+            lyr.id = i;
+            lyr.op = OP_CONV;
+
+            // batch
+            std::vector<std::string> pair;
+            split(parts[3], dlm, pair);
+            lyr.batch = stoi(pair[1]);
+            // inputs
+            split(parts[4], dlm, pair);
+            lyr.n_inputs = stoi(pair[1]);
+            
+            // outputs
+            split(parts[7], dlm, pair);
+            lyr.n_outputs = stoi(pair[1]);
+            
+            // out height
+            split(parts[8], dlm, pair);
+            lyr.height = stoi(pair[1]);
+            
+            // out width
+            split(parts[9], dlm, pair);
+            lyr.width = stoi(pair[1]);
+            
+            // conv height
+            split(parts[10], dlm, pair);
+            lyr.conv_height = stoi(pair[1]);
+            
+            // conv width
+            split(parts[11], dlm, pair);
+            lyr.conv_width = stoi(pair[1]);
+
+            lyr.precision = unitPrecision;
+            
+            lyr.numMuls = lyr.batch * lyr.n_inputs * lyr.n_outputs * lyr.width * lyr.height * lyr.conv_height * lyr.conv_width;
+            lyr.numAdds = lyr.batch * lyr.n_inputs * lyr.n_outputs * lyr.width * lyr.height * (lyr.conv_height * lyr.conv_width - 1);
+            
+            net.push_back(lyr);
+            line_id++;
         }
         m_file.close();
     }
@@ -297,10 +369,9 @@ int flexModel ::  computePower(const flexModelSpace & flex_space, const flexPara
     
     for (int i = 0; i < net.size(); i++){
         
-        int numElements = net[i].width * net[i].height;
-        int numMulAddPerElement = net[i].convSize * net[i].convSize;
-        power += numElements * numMulAddPerElement * powerArea[net[i].precision].powerMul;
-        power += numElements * numMulAddPerElement * powerArea[net[i].precision].powerAdd;
+        power += net[i].numMuls * powerArea[net[i].precision].powerMul;
+        power += net[i].numAdds * powerArea[net[i].precision].powerAdd;
+        size_t numElements = net[i].batch * net[i].n_inputs * net[i].n_outputs * net[i].width * net[i].height * net[i].conv_height * net[i].conv_width;
         power += (numElements / powerArea[net[i].precision].numElementsPerWord32) * flex_space.powerReadSRAM32;
     }
     
