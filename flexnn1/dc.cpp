@@ -187,6 +187,14 @@ int flexParam::parseNetModelFile(void)
             // inputs
             split(parts[4], dlm, pair);
             lyr.n_inputs = stoi(pair[1]);
+  
+            // in height
+            split(parts[5], dlm, pair);
+            lyr.in_height = stoi(pair[1]);
+            
+            // in width
+            split(parts[6], dlm, pair);
+            lyr.in_width = stoi(pair[1]);
             
             // outputs
             split(parts[7], dlm, pair);
@@ -194,11 +202,11 @@ int flexParam::parseNetModelFile(void)
             
             // out height
             split(parts[8], dlm, pair);
-            lyr.height = stoi(pair[1]);
+            lyr.out_height = stoi(pair[1]);
             
             // out width
             split(parts[9], dlm, pair);
-            lyr.width = stoi(pair[1]);
+            lyr.out_width = stoi(pair[1]);
             
             // conv height
             split(parts[10], dlm, pair);
@@ -210,7 +218,7 @@ int flexParam::parseNetModelFile(void)
 
             lyr.precision = unitPrecision;
             
-            size_t n_convs = (size_t)lyr.batch * (size_t)lyr.n_inputs * (size_t)lyr.n_outputs * (size_t)lyr.width * (size_t)lyr.height;
+            size_t n_convs = (size_t)lyr.batch * (size_t)lyr.n_inputs * (size_t)lyr.n_outputs * (size_t)lyr.out_width * (size_t)lyr.out_height;
             lyr.numMuls = n_convs * (size_t)lyr.conv_height * (size_t)lyr.conv_width;
             lyr.numAdds = n_convs * ((size_t)lyr.conv_height * (size_t)lyr.conv_width - 1);
             
@@ -352,7 +360,7 @@ int flexModel ::  computePower(const flexModelSpace & flex_space, const flexPara
     
     for (int i = 0; i < net.size(); i++){
         
-        size_t numElements = net[i].batch * net[i].n_inputs * net[i].n_outputs * net[i].width * net[i].height;
+        size_t numElements = net[i].batch * net[i].n_inputs * net[i].n_outputs * net[i].out_width * net[i].out_height;
         size_t numMulAddPerElement = net[i].conv_height * net[i].conv_width;
         
         power += numElements * numMulAddPerElement * powerArea[net[i].precision].powerMul;

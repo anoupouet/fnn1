@@ -66,8 +66,10 @@ struct flexLayer{
     int batch;
     int n_inputs;
     int n_outputs;
-    int width;
-    int height;
+    int in_height;
+    int in_width;
+    int out_height;
+    int out_width;
     int conv_height;
     int conv_width;
     int precision;
@@ -88,8 +90,10 @@ public:
         batch = 0;
         n_inputs = 0;
         n_outputs = 0;
-        width = 0;
-        height = 0;
+        in_width = 0;
+        in_height = 0;
+        out_height = 0;
+        out_width = 0;
         conv_height = 0;
         conv_width = 0;
         precision = 0;
